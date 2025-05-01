@@ -244,7 +244,10 @@ public class Tracker extends android.app.Service implements
                 break;
         }
     }
-
+    // 新增成员变量
+    private Runnable reconnectRunnable;
+    private static final long RECONNECT_INTERVAL_MS = 10000; // 10秒
+    // 修改后的 connect() 方法
     public void connect() {
         Log.e(getClass().getName(), "Tracker.connect() - state: " + state.get());
         switch (state.get()) {
@@ -278,11 +281,30 @@ public class Tracker extends android.app.Service implements
         u.loadLiveLoggers(liveLoggers);
         u.close();
 
-        TrackerComponent.ResultCode result = components.onConnecting(onConnectCallback,
-                getApplicationContext());
-        if (result != TrackerComponent.ResultCode.RESULT_PENDING) {
-            onConnectCallback.run(components, result);
-        }
+        // 初始化定时任务
+        reconnectRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.d("reconnect", "run: 重新链接");
+//                if (state.get() != TrackerState.CONNECTING) {
+//                    return; // 如果状态已改变则停止
+//                }
+                if(!trackerHRM.isConnected()) {
+                    TrackerComponent.ResultCode result = components.onConnecting(onConnectCallback, getApplicationContext());
+                    if (result != TrackerComponent.ResultCode.RESULT_PENDING) {
+                        onConnectCallback.run(components, result);
+                    }
+                }
+                // 继续循环（除非已连接或出错）
+//                if (state.get() == TrackerState.CONNECTING)
+                {
+                    handler.postDelayed(this, RECONNECT_INTERVAL_MS);
+                }
+            }
+        };
+
+        // 首次执行并启动循环
+        handler.post(reconnectRunnable);
     }
 
     private final TrackerComponent.Callback onConnectCallback = (component, resultCode) -> {
@@ -522,7 +544,9 @@ public class Tracker extends android.app.Service implements
             workout.setTracker(null);
             workout = null;
         }
-
+        if (handler != null && reconnectRunnable != null) {
+            handler.removeCallbacks(reconnectRunnable);
+        }
         state.set(TrackerState.CLEANUP);
         liveLoggers.clear();
         TrackerComponent.ResultCode res = components.onEnd(onEndCallback, getApplicationContext());
