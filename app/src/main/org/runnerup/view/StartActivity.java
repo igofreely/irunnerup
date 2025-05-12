@@ -622,7 +622,8 @@ public class StartActivity extends AppCompatActivity
     }
 
     private final OnClickListener startButtonClick = v -> {
-        if (mTracker.getState() == TrackerState.CONNECTED) {
+        if (mTracker.getState() == TrackerState.CONNECTED)
+        {
             startWorkout();
 
             return;
@@ -819,7 +820,7 @@ public class StartActivity extends AppCompatActivity
 
     private void updateGPSView() {
         if (!mGpsStatus.isEnabled() || !mGpsStatus.isLogging()) {
-            startButton.setVisibility(View.GONE);
+//            startButton.setVisibility(View.GONE);
             gpsEnable.setVisibility(View.VISIBLE);
 
             if (statusDetailsShown) {
@@ -856,18 +857,19 @@ public class StartActivity extends AppCompatActivity
                     : String.format(getString(org.runnerup.common.R.string.GPS_status_accuracy), satFixedCount, satAvailCount, gpsAccuracy);
             gpsDetailMessage.setText(gpsDetail);
 
-            if (!mGpsStatus.isFixed()) {
-                startButton.setVisibility(View.GONE);
-                gpsEnable.setVisibility(View.GONE);
-
-                gpsIndicator.setImageResource(R.drawable.ic_gps_0);
-                gpsDetailIndicator.setImageResource(R.drawable.ic_gps_0);
-                gpsMessage.setText(org.runnerup.common.R.string.Waiting_for_GPS);
-
-                notificationStateManager.displayNotificationState(gpsSearchingState);
-            } else {
+//            if (!mGpsStatus.isFixed()) {
+////                startButton.setVisibility(View.GONE);
+//                gpsEnable.setVisibility(View.GONE);
+//
+//                gpsIndicator.setImageResource(R.drawable.ic_gps_0);
+//                gpsDetailIndicator.setImageResource(R.drawable.ic_gps_0);
+//                gpsMessage.setText(org.runnerup.common.R.string.Waiting_for_GPS);
+//
+//                notificationStateManager.displayNotificationState(gpsSearchingState);
+//            } else
+            {
                 if (Objects.requireNonNull(tabHost.getCurrentTabTag()).contentEquals(TAB_ADVANCED) && advancedWorkout == null) {
-                    startButton.setVisibility(View.GONE);
+//                    startButton.setVisibility(View.GONE);
                 } else {
                     startButton.setVisibility(View.VISIBLE);
                 }

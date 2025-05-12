@@ -250,8 +250,9 @@ public class RunActivity extends AppCompatActivity implements TickListener {
     }
 
     private Timer timer = null;
-
+    double startTime;
     private void startTimer() {
+        startTime = System.currentTimeMillis();
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -377,7 +378,9 @@ public class RunActivity extends AppCompatActivity implements TickListener {
 
             setPauseButtonEnabled(!workout.isPaused());
             double ad = workout.getDistance(Scope.ACTIVITY);
-            double at = workout.getTime(Scope.ACTIVITY);
+//            double at = workout.getTime(Scope.ACTIVITY);
+            double currentTime = System.currentTimeMillis();
+            double at = (currentTime - startTime) / 1000.0;
             double ap = workout.getSpeed(Scope.ACTIVITY);
             activityTime.setText(formatter.formatElapsedTime(Formatter.Format.TXT_SHORT, Math.round(at)));
             activityDistance.setText(formatter.formatDistance(Formatter.Format.TXT_SHORT, Math.round(ad)));

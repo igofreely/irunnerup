@@ -274,7 +274,7 @@ public class Tracker extends android.app.Service implements
         }
 
         state.set(TrackerState.CONNECTING);
-
+        state.set(TrackerState.CONNECTED);
         wakeLock(true);
 
         SyncManager u = new SyncManager(getApplicationContext());
@@ -285,10 +285,17 @@ public class Tracker extends android.app.Service implements
         reconnectRunnable = new Runnable() {
             @Override
             public void run() {
-                Log.d("reconnect", "run: 重新链接");
+                Log.d("c", "run: 重新链接");
 //                if (state.get() != TrackerState.CONNECTING) {
 //                    return; // 如果状态已改变则停止
 //                }
+                // 创建一个空的或模拟的 Location 对象
+                Location mockLocation = new Location("mock_provider");
+                mockLocation.setTime(System.currentTimeMillis());
+                mockLocation.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
+
+                // 调用 onLocationChangedImpl 方法
+                onLocationChangedImpl(mockLocation, false);
                 if(!trackerHRM.isConnected()) {
                     TrackerComponent.ResultCode result = components.onConnecting(onConnectCallback, getApplicationContext());
                     if (result != TrackerComponent.ResultCode.RESULT_PENDING) {
@@ -654,6 +661,7 @@ public class Tracker extends android.app.Service implements
     }
 
     private void onLocationChangedImpl(Location arg0, boolean internal) {
+        Log.d("time", "time123");
         if (!mTimeFromGpsPoints || internal) {
             long elapsedNs = SystemClock.elapsedRealtimeNanos();
             arg0.setElapsedRealtimeNanos(elapsedNs);
@@ -670,7 +678,7 @@ public class Tracker extends android.app.Service implements
         if (mLastLocation != null) {
             double distDiff = arg0.distanceTo(mLastLocation);
             long timeDiffNanos = (arg0.getElapsedRealtimeNanos() - mLastLocation.getElapsedRealtimeNanos());
-
+            Log.d("time", "time"+String.valueOf(timeDiffNanos));
             float speed = arg0.getSpeed();
             if (!arg0.hasSpeed() || speed == 0.0f || mCurrentSpeedFromGpsPoints) {
                 // at least the emulator can return 0 speed with hasSpeed()
